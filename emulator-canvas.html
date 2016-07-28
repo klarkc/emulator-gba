@@ -66,9 +66,13 @@ Example:
       },
 
       // Callbacks
-      ready: function(){
+      ready: function() {
         this._initializeVsync();
         this._initializeBuffers();
+      },
+
+      attached: function() {
+        this._initializeCanvas();
       },
 
       // Private functions
@@ -104,7 +108,7 @@ Example:
       _initializeBuffers: function() {
         this._swizzledFrameFree = [
           getUint8Array(this.rgbCount),
-           getUint8Array(this.rgbaCount)
+          getUint8Array(this.rgbCount)
         ];
         this._swizzledFrameReady = [];
       },
@@ -129,8 +133,71 @@ Example:
         });
       },
 
+      _initializeCanvas: function() {
+        //Obtain dimensional information:
+        this._recomputeDimension();
+        //Get handles on the canvases:
+        this._canvasOffscreen = document.createElement("canvas");
+        this._canvasOffscreen.width = this.width;
+        this._canvasOffscreen.height = this.height;
+        this._drawContextOffscreen = this.canvasOffscreen.getContext("2d");
+        this._drawContextOnscreen = this.$.canvas.getContext("2d");
+        //Initialize the canvas backing buffer:
+        this._initializeCanvasBuffer();
+      },
+
+      _recomputeDimension: function() {
+        this._canvasLastWidth = this.$.canvas.clientWidth;
+        this._canvasLastHeight = this.$.canvas.clientHeight;
+        if ((
+          navigator.userAgent.toLowerCase().indexOf("gecko") != -1
+          && navigator.userAgent.toLowerCase().indexOf("like gecko") == -1
+        )) {    //Sniff out firefox for selecting this path.
+          //Set target as unscaled:
+          this._onscreenWidth = this.width;
+          this._onscreenHeight = this.height;
+        } else {
+          //Set target canvas as scaled:
+          this._onscreenWidth = this.width = this.$.canvas.clientWidth;
+          this._onscreenHeight = this.height = this.$.canvas.clientHeight;
+        }
+      },
+
+      _initializeCanvasBuffer: function() {
+        //Get a CanvasPixelArray buffer:
+        this._canvasBuffer = this._getBuffer(
+          this._drawContextOffscreen,
+          this.width,
+          this.height
+        );
+        //Initialize Alpha Channel:
+        this._initializeAlpha(this._canvasBuffer.data);
+      },
+
+      _getBuffer: function (canvasContext, width, height) {
+          //Get a CanvasPixelArray buffer:
+          var buffer = null;
+          try {
+              buffer = this._drawContextOffscreen.createImageData(width, height);
+          } catch (error) {
+              buffer = this._drawContextOffscreen.getImageData(0, 0, width, height);
+          }
+          return buffer;
+      },
+
+      _initializeAlpha:function (canvasData) {
+          var length = canvasData.length;
+          for (
+            var indexGFXIterate = 3;
+            indexGFXIterate < length;
+            indexGFXIterate += 4
+          ) {
+              canvasData[indexGFXIterate] = 0xFF;
+          }
+      },
+
       _requestDraw: function() {
-        
+
       }
     }
   });
