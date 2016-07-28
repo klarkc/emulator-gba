@@ -30,11 +30,6 @@ Example:
     is: 'emulator-canvas',
     properties: {
       /**
-      * Iodine emulator instance
-      */
-      iodine: Object,
-
-      /**
       * `doSmoothing` texture filter the framebuffer?
       */
       doSmoothing: {
@@ -100,15 +95,14 @@ Example:
         setInterval(function () {
           parentObj._vsync();
         }, 16);
-      }
-      else {
+      } else {
         //Initialize the rAF eventing:
-        this._requestAnimationFrame(
+        this._requestAnimationFrame.call(window,
           function () {
             parentObj._vsync();
             parentObj._rAFKeepAlive();
           }
-        )
+        );
       }
     },
 
@@ -147,7 +141,7 @@ Example:
       this._canvasOffscreen = document.createElement("canvas");
       this._canvasOffscreen.width = this.width;
       this._canvasOffscreen.height = this.height;
-      this._drawContextOffscreen = this.canvasOffscreen.getContext("2d");
+      this._drawContextOffscreen = this._canvasOffscreen.getContext("2d");
       this._drawContextOnscreen = this.$.canvas.getContext("2d");
       //Initialize the canvas backing buffer:
       this._initializeCanvasBuffer();
@@ -251,6 +245,8 @@ Example:
 
     _processSmoothing: function() {
       this.$.canvas.className = (this.doSmoothing) ? "textureSmooth" : "texturePixelated";
+      if(!this._drawContextOnscreen) return;
+
       this._drawContextOnscreen.mozImageSmoothingEnabled = this.doSmoothing;
       this._drawContextOnscreen.webkitImageSmoothingEnabled = this.doSmoothing;
       this._drawContextOnscreen.imageSmoothingEnabled = this.doSmoothing;
