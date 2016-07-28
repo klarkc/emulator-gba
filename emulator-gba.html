@@ -122,6 +122,73 @@ Example:
           type: Number,
           value: 50,
           notify: true
+        },
+
+        /**
+         * `consoleKeymapping` set the console key mapping. The order of buttons are:
+         * A, B, Select, Start, Right, Left, Up, Down, R, L
+         */
+        consoleKeymapping: {
+          type: Array,
+          value: [88,90,16,13,39,37,38,40,50,49]
+        },
+
+        /**
+         * `emulatorKeymapping` set the emulator key mapping. The order of functions are:
+         * Volume Down, Volume Up, Speed Up, Slow Down, Reset Speed, Toggle Fullscreen
+         */
+        emulatorKeymapping: {
+          type: Array,
+          value: [56,55,51,52,53,54]
+        },
+
+
+        // Element callbacks
+        ready: function() {
+          this.IodineGUI = {
+              Iodine:null,
+              Blitter:null,
+              coreTimerID:null,
+              GUITimerID: null,
+              toMap:null,
+              toMapIndice:0,
+              suspended:false,
+              startTime:(+(new Date()).getTime()),
+              mixerInput:null,
+            };
+          this._registerIodineHandler();
+        },
+
+        // Properties observers
+        observers: [
+
+        ],
+
+        // Private Methods
+        _registerIodineHandler: function() {
+          try {
+              /*
+              We utilize SharedArrayBuffer and Atomics API,
+              which browsers prior to 2016 do not support:
+              */
+              if (
+                typeof SharedArrayBuffer != "function"
+                || typeof Atomics != "object"
+               ) {
+                 throw null;
+              } else if (!this.cpuOffThread) {
+                //Try starting Iodine normally, but initialize offthread gfx:
+                IodineGUI.Iodine = new IodineGBAWorkerGfxShim();
+              } else {
+                  //Try starting Iodine in a webworker:
+                  IodineGUI.Iodine = new IodineGBAWorkerShim();
+                  //In order for save on page unload, this needs to be done:
+                  // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
+              }
+          } catch (e) {
+              //Otherwise just run on-thread:
+              IodineGUI.Iodine = new GameBoyAdvanceEmulator();
+          }
         }
       }
     });
