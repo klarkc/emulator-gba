@@ -1,5 +1,10 @@
 # emulator-gba
 
+[![Travis][travis-image]][travis-url]
+
+[travis-image]: https://img.shields.io/travis/klarkc/emulator-gba/master.svg
+[travis-url]: https://travis-ci.org/klarkc/emulator-gba
+
 An element providing a starting point for your own reusable Polymer elements.
 
 
