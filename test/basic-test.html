@@ -9,51 +9,51 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
 
-    <!-- Step 1: import the element to test -->
-    <link rel="import" href="../emulator-gba.html">
-  </head>
-  <body>
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../emulator-gba.html">
+</head>
+<body>
 
-    <!-- You can use the document as a place to set up your fixtures. -->
-    <test-fixture id="emulator-gba-fixture">
-      <template>
-        <emulator-gba>
-          <h2>emulator-gba</h2>
-        </emulator-gba>
-      </template>
-    </test-fixture>
+  <!-- You can use the document as a place to set up your fixtures. -->
+  <test-fixture id="emulator-gba-fixture">
+    <template>
+      <emulator-gba>
+        <h2>emulator-gba</h2>
+      </emulator-gba>
+    </template>
+  </test-fixture>
 
-    <script>
-      suite('<emulator-gba>', function() {
+  <script>
+  suite('<emulator-gba>', function() {
 
-        var myEl;
+    var myEl;
 
-        setup(function() {
-          myEl = fixture('emulator-gba-fixture');
-        });
+    setup(function() {
+      myEl = fixture('emulator-gba-fixture');
+    });
 
-        test('defines the default properties', function() {
-          assert.isUndefined(myEl.bios);
-          assert.isUndefined(myEl.rom);
-          assert.isUndefined(myEl.save);
-          assert.isFalse(myEl.skipBoot);
-          assert.isTrue(myEl.smoothScaling);
-          assert.isFalse(myEl.dynamicSpeed);
-          assert.equal(myEl.speed, 100);
-          assert.isTrue(myEl.cpuOffThread);
-          assert.isTrue(myEl.gpuOffThread);
-          assert.isTrue(myEl.sound);
-          assert.equal(myEl.volume, 50);
-        });
-      });
-    </script>
+    test('defines the default properties', function() {
+      assert.isUndefined(myEl.bios);
+      assert.isUndefined(myEl.rom);
+      assert.isUndefined(myEl.save);
+      assert.isFalse(myEl.skipBoot);
+      assert.isTrue(myEl.smoothScaling);
+      assert.isFalse(myEl.dynamicSpeed);
+      assert.equal(myEl.speed, 100);
+      assert.isTrue(myEl.cpuOffThread);
+      assert.isTrue(myEl.gpuOffThread);
+      assert.isTrue(myEl.sound);
+      assert.equal(myEl.volume, 50);
+    });
+  });
+  </script>
 
-  </body>
+</body>
 </html>
