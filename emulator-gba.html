@@ -178,16 +178,16 @@ Polymer({
           throw null;
         } else if (!this.cpuOffThread) {
           //Try starting Iodine normally, but initialize offthread gfx:
-          IodineGUI.Iodine = new IodineGBAWorkerGfxShim();
+          this.IodineGUI.Iodine = new IodineGBAWorkerGfxShim();
         } else {
           //Try starting Iodine in a webworker:
-          IodineGUI.Iodine = new IodineGBAWorkerShim();
+          this.IodineGUI.Iodine = new IodineGBAWorkerShim();
           //In order for save on page unload, this needs to be done:
           // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
         }
       } catch (e) {
         //Otherwise just run on-thread:
-        IodineGUI.Iodine = new GameBoyAdvanceEmulator();
+        this.IodineGUI.Iodine = new GameBoyAdvanceEmulator();
       }
     }
   }
