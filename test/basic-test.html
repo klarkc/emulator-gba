@@ -51,6 +51,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.isTrue(myEl.gpuOffThread);
       assert.isTrue(myEl.sound);
       assert.equal(myEl.volume, 50);
+      assert.deepEqual(
+        myEl.consoleKeymapping,
+        [88,90,16,13,39,37,38,40,50,49]
+      );
+      assert.deepEqual(
+        myEl.emulatorKeymapping,
+        [56,55,51,52,53,54]
+      );
     });
   });
   </script>
