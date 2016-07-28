@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../IodineGBA/iodineGBA.html">
+<link rel="import" href="emulator-canvas.html">
 
 <!--
 An element providing a solution to no problem in particular.
@@ -36,7 +37,7 @@ Example:
       box-sizing: border-box;
     }
     </style>
-    <canvas id="emulator_target" width="240" height="160"></canvas>
+    <emulator-canvas iodine={{iodine}} width="240", height="160"></emulator-canvas>
   </template>
   <script>
   Polymer({
@@ -159,7 +160,7 @@ Example:
     // Listeners
     listeners: {},
 
-    // Private Methods
+    // Private functions
     _instanceIodine: function() {
       try {
         /*

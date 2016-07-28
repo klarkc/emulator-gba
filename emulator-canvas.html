@@ -1,0 +1,138 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+The canvas element to be used in emulator-gba element
+
+Example:
+
+<emulator-canvas iodine={{iodine}} width="240", height="160"></emulator-canvas>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="emulator-canvas">
+  <template>
+    <canvas id="canvas" width={{width}} height={{height}}></canvas>
+  </template>
+  <script>
+  Polymer({
+    is: 'emulator-canvas',
+    properties: {
+      /**
+      * Iodine emulator instance
+      */
+      iodine: Object,
+
+      /**
+      * `doSmoothing` texture filter the framebuffer?
+      */
+      doSmoothing: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `width` width of the screen
+      * @type {[type]}
+      */
+      width: Number,
+
+      /**
+      * `height` height of the screen
+      */
+      height: Number,
+
+      rgbCount: {
+        type: Number,
+        readOnly: true,
+        computed: '_computeRgbCount(width, height)'
+      },
+
+      rgbaCount: {
+        type: Number,
+        readOnly: true,
+        computed: '_computeRgbaCount(width, height)'
+      },
+
+      // Callbacks
+      ready: function(){
+        this._initializeVsync();
+        this._initializeBuffers();
+      },
+
+      // Private functions
+      _computeRgbCount: function(width, height) {
+        return width * height * 3;
+      },
+
+      _computeRgbaCount: function(width, height) {
+        return width * height * 4;
+      },
+
+      _initializeVsync: function() {
+        this._requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+        window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+        var parentObj = this;
+        if (!this._requestAnimationFrame) {
+          //Fallback timer eventing:
+          setInterval(function () {
+            parentObj._vsync();
+          }, 16);
+        }
+        else {
+          //Initialize the rAF eventing:
+          this._requestAnimationFrame(
+            function () {
+              parentObj._vsync();
+              parentObj._rAFKeepAlive();
+            }
+          )
+        }
+      },
+
+      _initializeBuffers: function() {
+        this._swizzledFrameFree = [
+          getUint8Array(this.rgbCount),
+           getUint8Array(this.rgbaCount)
+        ];
+        this._swizzledFrameReady = [];
+      },
+
+      _vsync: function() {
+        /*
+        if (typeof this.gfxCallback == "function") {
+          //Let the user supplied code prepare a frame or two:
+          this.gfxCallback();
+        }
+        */
+        //Draw a frame, if ready:
+        this._requestDraw();
+      },
+
+      _rAFKeepAlive: function() {
+        //Keep the vsync event requested:
+        var parentObj = this;
+        this._requestAnimationFrame(function () {
+          parentObj._vsync();
+          parentObj._rAFKeepAlive();
+        });
+      },
+
+      _requestDraw: function() {
+        
+      }
+    }
+  });
+  </script>
+</dom-module>
