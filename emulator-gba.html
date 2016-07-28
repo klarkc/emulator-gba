@@ -30,150 +30,163 @@ Example:
 
 <dom-module id="emulator-gba">
   <template>
-  <style>
-  :host {
-    display: block;
-    box-sizing: border-box;
-  }
-  </style>
-
-</template>
-
-<script>
-Polymer({
-  is: 'emulator-gba',
-
-  properties: {
-    /**
-    * `bios` optional url to download bios file.
-    */
-    bios: String,
-
-    /**
-    * `rom` optional url to download rom file.
-    */
-    rom: String,
-
-    /**
-    * `save` optional url to download save file.
-    */
-    save: String,
-
-    /**
-    * `skipBoot` true to skip boot intro
-    */
-    skipBoot: {
-      type: Boolean,
-      value: false
-    },
-
-    /**
-    * `smoothScaling` false to disable smooth scaling
-    */
-    smoothScaling: {
-      type: Boolean,
-      value: true
-    },
-
-    /**
-    * `dynamicSpeed` true to enable dynamic speed
-    */
-    dynamicSpeed: {
-      type: Boolean,
-      value: false
-    },
-
-    /**
-    * `speed` manual speed of the emulation in %
-    */
-    speed: {
-      type: Number,
-      value: 100
-    },
-
-    /**
-    * `cpuOffThread` false to disable CPU off-thread
-    */
-    cpuOffThread: {
-      type: Boolean,
-      value: true
-    },
-
-    /**
-    * `gpuOffThread` false to disable GPU off-thread
-    */
-    gpuOffThread: {
-      type: Boolean,
-      value: true
-    },
-
-    /**
-    * `sound` false to disable sound
-    */
-    sound: {
-      type: Boolean,
-      value: true
-    },
-
-    /**
-    * `volume` adjust the volume or listen for volume changes (in %)
-    */
-    volume: {
-      type: Number,
-      value: 50,
-      notify: true
-    },
-
-    /**
-    * `consoleKeymapping` set the console key mapping. The order of buttons are:
-    * A, B, Select, Start, Right, Left, Up, Down, R, L
-    */
-    consoleKeymapping: {
-      type: Array,
-      value: [88,90,16,13,39,37,38,40,50,49]
-    },
-
-    /**
-    * `emulatorKeymapping` set the emulator key mapping. The order of functions are:
-    * Volume Down, Volume Up, Speed Up, Slow Down, Reset Speed, Toggle Fullscreen
-    */
-    emulatorKeymapping: {
-      type: Array,
-      value: [56,55,51,52,53,54]
+    <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
     }
-  },
+    </style>
+    <canvas id="emulator_target" width="240" height="160"></canvas>
+  </template>
+  <script>
+  Polymer({
+    is: 'emulator-gba',
 
-  // Properties observers
-  observers: [
-    '_registerIodineHandler(cpuOffThread)'
-  ],
-
-  // Private Methods
-  _registerIodineHandler: function() {
-    try {
-      /*
-      We utilize SharedArrayBuffer and Atomics API,
-      which browsers prior to 2016 do not support:
+    properties: {
+      /**
+      * `bios` optional url to download bios file.
       */
-      if (
-        typeof SharedArrayBuffer != "function"
-        || typeof Atomics != "object"
-      ) {
-        throw null;
-      } else if (!this.cpuOffThread) {
-        //Try starting Iodine normally, but initialize offthread gfx:
-        this._Iodine = new IodineGBAWorkerGfxShim();
-      } else {
-        //Try starting Iodine in a webworker:
-        this._Iodine = new IodineGBAWorkerShim();
-        //In order for save on page unload, this needs to be done:
-        // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
+      bios: String,
+
+      /**
+      * `rom` optional url to download rom file.
+      */
+      rom: String,
+
+      /**
+      * `save` optional url to download save file.
+      */
+      save: String,
+
+      /**
+      * `skipBoot` true to skip boot intro
+      */
+      skipBoot: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+      * `smoothScaling` false to disable smooth scaling
+      */
+      smoothScaling: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `dynamicSpeed` true to enable dynamic speed
+      */
+      dynamicSpeed: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+      * `speed` manual speed of the emulation in %
+      */
+      speed: {
+        type: Number,
+        value: 100
+      },
+
+      /**
+      * `cpuOffThread` false to disable CPU off-thread
+      */
+      cpuOffThread: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `gpuOffThread` false to disable GPU off-thread
+      */
+      gpuOffThread: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `sound` false to disable sound
+      */
+      sound: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `volume` adjust the volume or listen for volume changes (in %)
+      */
+      volume: {
+        type: Number,
+        value: 50,
+        notify: true
+      },
+
+      /**
+      * `consoleKeymapping` set the console key mapping. The order of buttons are:
+      * A, B, Select, Start, Right, Left, Up, Down, R, L
+      */
+      consoleKeymapping: {
+        type: Array,
+        value: [88,90,16,13,39,37,38,40,50,49]
+      },
+
+      /**
+      * `emulatorKeymapping` set the emulator key mapping. The order of functions are:
+      * Volume Down, Volume Up, Speed Up, Slow Down, Reset Speed, Toggle Fullscreen
+      */
+      emulatorKeymapping: {
+        type: Array,
+        value: [56,55,51,52,53,54]
+      },
+
+      /**
+      * `iodine` the emulator instance, for advanced purposes
+      */
+      iodine: {
+        type: Object,
+        readOnly: true,
+        value: null
       }
-    } catch (e) {
-      //Otherwise just run on-thread:
-      this._Iodine = new GameBoyAdvanceEmulator();
+    },
+
+    // Properties observers
+    observers: [
+      '_instanceIodine(cpuOffThread)'
+    ],
+
+    // Listeners
+    listeners: {},
+
+    // Private Methods
+    _instanceIodine: function() {
+      try {
+        /*
+        We utilize SharedArrayBuffer and Atomics API,
+        which browsers prior to 2016 do not support:
+        */
+        if (
+          typeof SharedArrayBuffer != "function"
+          || typeof Atomics != "object"
+        ) {
+          throw null;
+        } else if (!this.cpuOffThread) {
+          //Try starting Iodine normally, but initialize offthread gfx:
+          this.iodine = new IodineGBAWorkerGfxShim();
+        } else {
+          //Try starting Iodine in a webworker:
+          this.iodine = new IodineGBAWorkerShim();
+          //In order for save on page unload, this needs to be done:
+          // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
+        }
+      } catch (e) {
+        //Otherwise just run on-thread:
+        this.iodine = new GameBoyAdvanceEmulator();
+      }
+
+      this.iodine.setIntervalRate(16);
     }
-  }
-});
-</script>
+  });
+  </script>
 </dom-module>
