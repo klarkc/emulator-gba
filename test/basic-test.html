@@ -18,21 +18,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <!-- Step 1: import the element to test -->
   <link rel="import" href="../emulator-gba.html">
+  <link rel="import" href="../../IodineGBA/iodineGBA.html">
 </head>
 <body>
 
   <!-- You can use the document as a place to set up your fixtures. -->
   <test-fixture id="emulator-gba-fixture">
     <template>
-      <emulator-gba>
-        <h2>emulator-gba</h2>
-      </emulator-gba>
+      <emulator-gba></emulator-gba>
     </template>
   </test-fixture>
 
   <script>
   suite('<emulator-gba>', function() {
-
     var myEl;
 
     setup(function() {
@@ -59,6 +57,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         myEl.emulatorKeymapping,
         [56,55,51,52,53,54]
       );
+    });
+
+    test('test _registerIodineHandler', function(){
+      let compatible = (
+        typeof SharedArrayBuffer === "function"
+        && typeof Atomics === "object"
+      );
+
+      myEl.cpuOffThread = false;
+      if(!compatible) {
+        assert.instanceOf(myEl._Iodine, GameBoyAdvanceEmulator);
+        return;
+      }
+
+      assert.instanceOf(myEl._Iodine, IodineGBAWorkerGfxShim);
+      myEl.cpuOffThread = true;
+      assert.instanceOf(myEl._Iodine, IodineGBAWorkerShim);
     });
   });
   </script>

@@ -140,55 +140,38 @@ Polymer({
     emulatorKeymapping: {
       type: Array,
       value: [56,55,51,52,53,54]
-    },
+    }
+  },
 
+  // Properties observers
+  observers: [
+    '_registerIodineHandler(cpuOffThread)'
+  ],
 
-    // Element callbacks
-    ready: function() {
-      this.IodineGUI = {
-        Iodine:null,
-        Blitter:null,
-        coreTimerID:null,
-        GUITimerID: null,
-        toMap:null,
-        toMapIndice:0,
-        suspended:false,
-        startTime:(+(new Date()).getTime()),
-        mixerInput:null,
-      };
-      this._registerIodineHandler();
-    },
-
-    // Properties observers
-    observers: [
-
-    ],
-
-    // Private Methods
-    _registerIodineHandler: function() {
-      try {
-        /*
-        We utilize SharedArrayBuffer and Atomics API,
-        which browsers prior to 2016 do not support:
-        */
-        if (
-          typeof SharedArrayBuffer != "function"
-          || typeof Atomics != "object"
-        ) {
-          throw null;
-        } else if (!this.cpuOffThread) {
-          //Try starting Iodine normally, but initialize offthread gfx:
-          this.IodineGUI.Iodine = new IodineGBAWorkerGfxShim();
-        } else {
-          //Try starting Iodine in a webworker:
-          this.IodineGUI.Iodine = new IodineGBAWorkerShim();
-          //In order for save on page unload, this needs to be done:
-          // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
-        }
-      } catch (e) {
-        //Otherwise just run on-thread:
-        this.IodineGUI.Iodine = new GameBoyAdvanceEmulator();
+  // Private Methods
+  _registerIodineHandler: function() {
+    try {
+      /*
+      We utilize SharedArrayBuffer and Atomics API,
+      which browsers prior to 2016 do not support:
+      */
+      if (
+        typeof SharedArrayBuffer != "function"
+        || typeof Atomics != "object"
+      ) {
+        throw null;
+      } else if (!this.cpuOffThread) {
+        //Try starting Iodine normally, but initialize offthread gfx:
+        this._Iodine = new IodineGBAWorkerGfxShim();
+      } else {
+        //Try starting Iodine in a webworker:
+        this._Iodine = new IodineGBAWorkerShim();
+        //In order for save on page unload, this needs to be done:
+        // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
       }
+    } catch (e) {
+      //Otherwise just run on-thread:
+      this._Iodine = new GameBoyAdvanceEmulator();
     }
   }
 });
