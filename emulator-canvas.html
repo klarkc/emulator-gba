@@ -67,6 +67,11 @@ Example:
 
     }
 
+    // Observers
+    observers: [
+      '_processSmoothing(doSmoothing)'
+    ];
+
     // Callbacks
     ready: function() {
       this._initializeVsync();
@@ -202,7 +207,11 @@ Example:
       if (this._swizzledFrameReady.length > 0) {
         var canvasData = this._canvasBuffer.data;
         var swizzledFrame = this._swizzledFrameReady.shift();
-        for (var canvasIndex = 0, bufferIndex = 0; canvasIndex < this.rgbaCount; ++canvasIndex) {
+        for (
+          var canvasIndex = 0, bufferIndex = 0;
+          canvasIndex < this.rgbaCount;
+          ++canvasIndex
+        ) {
           canvasData[canvasIndex++] = swizzledFrame[bufferIndex++];
           canvasData[canvasIndex++] = swizzledFrame[bufferIndex++];
           canvasData[canvasIndex++] = swizzledFrame[bufferIndex++];
