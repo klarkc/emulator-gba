@@ -1,25 +1,22 @@
 language: node_js
-sudo: false
-before_script:
-  - npm install -g bower polylint web-component-tester
-  - bower install
-  - polylint
-env:
-  global:
-    - secure: gZ5vpMlc9fuKSZeMmT6xf4+FIVWxET6f6Lkp6l5Qo9vL2X/KC/bMJF1v2w5xXFLFTdm/hPUDkeQRDUBBJhGcsXhJeWIvAXdPkObV9ZPRwpDnnN1qU5lOqVIy6gFjDm2Wm6UNXcRnyP1TrGpMwbG13EUtD0rF8LZqBm3B833sKS4=
-    - secure: DObDewETPYiIsASeC3UETPbQ6YBniRZdNV2eTM1xULvuFNDxXJD09KKyWOiMduublEIJRXLjBIXmD8cbVsgrbRUYA4bxcXffDeuc6q6HaQGU9HvIbLz6o3/oxi4fX2G9GwrZtijW2p2Rgw2l9koR3ovjcM97CSTWFUMh5rtXag8=
-    - CXX=g++-4.8
 node_js: stable
+dist: trusty
+sudo: required
 addons:
-  firefox: latest
+  firefox: '46.0'
+  sauce_connect: true
   apt:
     sources:
-      - google-chrome
-      - ubuntu-toolchain-r-test
+    - google-chrome
     packages:
-      - google-chrome-stable
-      - g++-4.8
-  sauce_connect: true
+    - google-chrome-stable
+before_script:
+- npm install -g bower polylint web-component-tester
+- bower install
+- polylint
 script:
-  - xvfb-run wct
-  - "if [ \"${TRAVIS_PULL_REQUEST}\" = \"false\" ]; then wct -s 'default'; fi"
+- xvfb-run wct
+env:
+  global:
+  - secure: UsZWS4nJ5QzFxiQShE2EOo4eS66g1BM9cwdNfz764jfGmCDJTUFMjWp5YRQrFl9Ml1/h3efI1ymXm91Od2NzktZ4J5bvskgquOGPdAEFf9T5PGW18AgLMlysaaBA/Jnr1UdinxDTx9P8/48F5f3LKnEkaAJ29MwlLmSpnlAeazVzbF5i7rNuzdK4DSxEBSadRY3BnPE8Y5BokYw4x3eqZj42zqKJcZ6jg6ArExvUE/FTii8IZZfpaoFn3Q7VIVXO6JDgyeExPU3brpkL9ha1y/PnBdov/6vae2K2XUbEJmv3QPZMhhMI0fh4dYhe63uMsFLnHQD1DGG6TVhuc+Jh/pneo4YhSqJ/B2T6owXq7lyqwK7G2xg3sDiWR7qB6hlkQhr2CQbD9ilGHNWqvdcNzbHrbtjvtdbBsRjFKyZKB1TiThCsCQHQvuWR8RRnhGhGlF77DwoT3e1taA5B2BFuM6u6sMQ6nZckRQ9dLEnTtEoWFYM8+bY9s0JcgKC9JKRgDqBIoaTiOIDKoCfVPMhwaFB+7/1ZlMZXk2VCwtl/bBwcLJAA8DcBT7FUjfFqAlyU3yNPVlxDrJ4xL87K28YHgpQRar3aXxsBVKxjIYV4GCT4Ef6V/YAPh7uyT0Pl4qbpfD0cQVbpLdVWn1kYIDCNxg6qGS4JXtAe1lGGQQtjdJQ=
+  - secure: r/6lW1X5Jl+FII8mVBojO1+KQ5u95aeVZMVEATVfkIa/JNELLADDE9JuJdh56pRkgNw4b6imoEGhyvQa7fXPcs6ChpiQvxhkp4fosbQwpvr4QaUHwVRgkPMTb/MTFJo52LdeHQwRQFyMa852BknrSqkIWGNi49btn7Li1lKDaejNuhw/xjL8NLZykGsE/mBgGN1AGmExzqO69BaK72JqgJx6y9FtjzvBQ+P2Ci/CzukAVT2wswp0wZ7TY+VHZ3ceRavKn92yNNlgn6kMk/q29xgCUvswT7JgG/Z14za839jbOFkS9E6OZYyswFk/6iVauaQ1XYv6zyp64c9643ObDkzWgfyUtpKp1CcT/fYmW/vqt8RRapo+b7RMjECLaRnG82R1RqnndRb6Wmv56gIxsKfJ0/CjPM2Ax5tqZSnJ1RJw2Di8HybwMMgyKDkM+4ZMYg3Q1eqlcAoGrJ1arDhB58+zM9qAhh29a992K/srJ5zfc1naEBGzv5mTUTGasOvE7mFRe4CgXC6ilBEi8w1JcgAw39yaedG3obmPNQQ5QAIElArAEoSPiq5SuFA9aIOdOl26Mu2iaR+dN5/frbRpt9G+jNHZY7T9iz6I74GYOOi9BMpDEyys+7jgz9ayjDkiKE2WgoR4jRc6oUY5y7d/mcgk7vn4H8EeZNw+BN543tU=
