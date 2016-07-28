@@ -35,23 +35,8 @@ Example:
         display: block;
         box-sizing: border-box;
       }
-
-      .author img {
-        display: block;
-        float: left;
-        margin-right: 5px;
-        max-height: 100px;
-        max-width: 100px;
-      }
     </style>
 
-    <h1>&lt;emulator-gba&gt;</h1>
-    <content></content>
-    <p class="author">
-      <img src$="{{author.image}}">
-      Cheers,<br/>
-      <span class="name">{{author.name}}</span>
-    </p>
   </template>
 
   <script>
@@ -60,92 +45,84 @@ Example:
 
       properties: {
         /**
-         * `fancy` indicates that the element should don a monocle and tophat,
-         * while checking its pocket watch.
+         * `bios` optional url to download bios file.
          */
-        fancy: Boolean,
+        bios: String,
 
         /**
-         * Describes the author of the element, but is really just an excuse to
-         * show off JSDoc annotations.
-         *
-         * @type {{name: string, image: string}}
+         * `rom` optional url to download rom file.
          */
-        author: {
-          type: Object,
-          // Use `value` to provide a default value for a property, by setting it
-          // on your element's prototype.
-          //
-          // If you provide a function, as we do here, Polymer will call that
-          // _per element instance_.
-          //
-          // We do that to ensure that each element gets its own copy of the
-          // value, rather than having it shared across all instances (via the
-          // prototype).
-          value: function() {
-            return {
-              name:  'Dimitri Glazkov',
-              image: 'http://addyosmani.com/blog/wp-content/uploads/2013/04/unicorn.jpg',
-            };
-          }
+        rom: String,
+
+        /**
+         * `save` optional url to download save file.
+         */
+        save: String,
+
+        /**
+         * `skipBoot` true to skip boot intro
+         */
+        skipBoot: {
+          type: Boolean,
+          value: false
         },
-      },
 
-      // Element Lifecycle
+        /**
+         * `smoothScaling` false to disable smooth scaling
+         */
+        smoothScaling: {
+          type: Boolean,
+          value: true
+        },
 
-      ready: function() {
-        // `ready` is called after all elements have been configured, but
-        // propagates bottom-up. This element's children are ready, but parents
-        // are not.
-        //
-        // This is the point where you should make modifications to the DOM (when
-        // necessary), or kick off any processes the element wants to perform.
-      },
+        /**
+         * `dynamicSpeed` true to enable dynamic speed
+         */
+        dynamicSpeed: {
+          type: Boolean,
+          value: false
+        },
 
-      attached: function() {
-        // `attached` fires once the element and its parents have been inserted
-        // into a document.
-        //
-        // This is a good place to perform any work related to your element's
-        // visual state or active behavior (measuring sizes, beginning animations,
-        // loading resources, etc).
-      },
+        /**
+         * `speed` manual speed of the emulation in %
+         */
+        speed: {
+          type: Number,
+          value: 100
+        },
 
-      detached: function() {
-        // The analog to `attached`, `detached` fires when the element has been
-        // removed from a document.
-        //
-        // Use this to clean up anything you did in `attached`.
-      },
+        /**
+         * `cpuOffThread` false to disable CPU off-thread
+         */
+        cpuOffThread: {
+          type: Boolean,
+          value: true
+        },
 
-      // Element Behavior
+        /**
+         * `gpuOffThread` false to disable GPU off-thread
+         */
+        gpuOffThread: {
+          type: Boolean,
+          value: true
+        },
 
-      /**
-       * Sometimes it's just nice to say hi.
-       *
-       * @param {string} greeting A positive greeting.
-       * @return {string} The full greeting.
-       */
-      sayHello: function(greeting) {
-        var response = greeting || 'Hello World!';
-        return 'emulator-gba says, ' + response;
-      },
+        /**
+         * `sound` false to disable sound
+         */
+        sound: {
+          type: Boolean,
+          value: true
+        },
 
-      /**
-       * The `emulator-gba-lasers` event is fired whenever `fireLasers` is called.
-       *
-       * @event emulator-gba-lasers
-       * @detail {{sound: String}}
-       */
-
-      /**
-       * Attempt to destroy this element's enemies with a beam of light!
-       *
-       * Or, at least, dispatch an event in the vain hope that someone else will
-       * do the zapping.
-       */
-      fireLasers: function() {
-        this.fire('emulator-gba-lasers', {sound: 'Pew pew!'});
+        /**
+         * `volume` adjust the volume or listen for volume changes (in %)
+         */
+        volume: {
+          type: Number,
+          value: 50,
+          notify: true
+        }
       }
     });
   </script>

@@ -17,32 +17,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../emulator-gba.html">
   </head>
   <body unresolved>
-
-    <p>An example of <code>&lt;emulator-gba&gt;</code>:</p>
-
-    <p>Make words! <button id="saybtn">Say Something</button></p>
-    <p>Make lasers! <button id="laserbtn">Fire lasers</button></p>
-
-    <emulator-gba author='{"name": "Lord Meowser", "image": "http://lorempixel.com/g/300/200/cats/"}' fancy>
-      <h2>Hello emulator-gba</h2>
-    </emulator-gba>
-
-    <script>
-      var seedElement = document.querySelector('emulator-gba');
-
-      document.querySelector('#saybtn').addEventListener('click', function() {
-        alert(seedElement.sayHello('Hallo!'));
-      });
-
-      document.querySelector('#laserbtn').addEventListener('click', function() {
-        seedElement.fireLasers();
-      });
-
-      document.addEventListener("emulator-gba-lasers", function(e) {
-        console.log(e.detail.sound);
-      });
-
-    </script>
-
+    <emulator-gba></emulator-gba>
   </body>
 </html>
