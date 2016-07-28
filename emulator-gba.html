@@ -173,16 +173,16 @@ Example:
           throw null;
         } else if (!this.cpuOffThread) {
           //Try starting Iodine normally, but initialize offthread gfx:
-          this.iodine = new IodineGBAWorkerGfxShim();
+          this._setIodine(new IodineGBAWorkerGfxShim());
         } else {
           //Try starting Iodine in a webworker:
-          this.iodine = new IodineGBAWorkerShim();
+          this._setIodine(new IodineGBAWorkerShim());
           //In order for save on page unload, this needs to be done:
           // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
         }
       } catch (e) {
         //Otherwise just run on-thread:
-        this.iodine = new GameBoyAdvanceEmulator();
+        this._setIodine(new GameBoyAdvanceEmulator());
       }
 
       this.iodine.setIntervalRate(16);
