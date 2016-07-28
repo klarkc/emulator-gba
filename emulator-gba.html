@@ -16,13 +16,13 @@ An element providing a solution to no problem in particular.
 
 Example:
 
-    <emulator-gba></emulator-gba>
+<emulator-gba></emulator-gba>
 
 Example:
 
-    <emulator-gba>
-      <h2>Hello emulator-gba</h2>
-    </emulator-gba>
+<emulator-gba>
+<h2>Hello emulator-gba</h2>
+</emulator-gba>
 
 @demo demo/index.html
 @hero hero.svg
@@ -30,167 +30,167 @@ Example:
 
 <dom-module id="emulator-gba">
   <template>
-    <style>
-      :host {
-        display: block;
-        box-sizing: border-box;
-      }
-    </style>
+  <style>
+  :host {
+    display: block;
+    box-sizing: border-box;
+  }
+  </style>
 
-  </template>
+</template>
 
-  <script>
-    Polymer({
-      is: 'emulator-gba',
+<script>
+Polymer({
+  is: 'emulator-gba',
 
-      properties: {
-        /**
-         * `bios` optional url to download bios file.
-         */
-        bios: String,
+  properties: {
+    /**
+    * `bios` optional url to download bios file.
+    */
+    bios: String,
 
-        /**
-         * `rom` optional url to download rom file.
-         */
-        rom: String,
+    /**
+    * `rom` optional url to download rom file.
+    */
+    rom: String,
 
-        /**
-         * `save` optional url to download save file.
-         */
-        save: String,
+    /**
+    * `save` optional url to download save file.
+    */
+    save: String,
 
-        /**
-         * `skipBoot` true to skip boot intro
-         */
-        skipBoot: {
-          type: Boolean,
-          value: false
-        },
+    /**
+    * `skipBoot` true to skip boot intro
+    */
+    skipBoot: {
+      type: Boolean,
+      value: false
+    },
 
-        /**
-         * `smoothScaling` false to disable smooth scaling
-         */
-        smoothScaling: {
-          type: Boolean,
-          value: true
-        },
+    /**
+    * `smoothScaling` false to disable smooth scaling
+    */
+    smoothScaling: {
+      type: Boolean,
+      value: true
+    },
 
-        /**
-         * `dynamicSpeed` true to enable dynamic speed
-         */
-        dynamicSpeed: {
-          type: Boolean,
-          value: false
-        },
+    /**
+    * `dynamicSpeed` true to enable dynamic speed
+    */
+    dynamicSpeed: {
+      type: Boolean,
+      value: false
+    },
 
-        /**
-         * `speed` manual speed of the emulation in %
-         */
-        speed: {
-          type: Number,
-          value: 100
-        },
+    /**
+    * `speed` manual speed of the emulation in %
+    */
+    speed: {
+      type: Number,
+      value: 100
+    },
 
-        /**
-         * `cpuOffThread` false to disable CPU off-thread
-         */
-        cpuOffThread: {
-          type: Boolean,
-          value: true
-        },
+    /**
+    * `cpuOffThread` false to disable CPU off-thread
+    */
+    cpuOffThread: {
+      type: Boolean,
+      value: true
+    },
 
-        /**
-         * `gpuOffThread` false to disable GPU off-thread
-         */
-        gpuOffThread: {
-          type: Boolean,
-          value: true
-        },
+    /**
+    * `gpuOffThread` false to disable GPU off-thread
+    */
+    gpuOffThread: {
+      type: Boolean,
+      value: true
+    },
 
-        /**
-         * `sound` false to disable sound
-         */
-        sound: {
-          type: Boolean,
-          value: true
-        },
+    /**
+    * `sound` false to disable sound
+    */
+    sound: {
+      type: Boolean,
+      value: true
+    },
 
-        /**
-         * `volume` adjust the volume or listen for volume changes (in %)
-         */
-        volume: {
-          type: Number,
-          value: 50,
-          notify: true
-        },
+    /**
+    * `volume` adjust the volume or listen for volume changes (in %)
+    */
+    volume: {
+      type: Number,
+      value: 50,
+      notify: true
+    },
 
-        /**
-         * `consoleKeymapping` set the console key mapping. The order of buttons are:
-         * A, B, Select, Start, Right, Left, Up, Down, R, L
-         */
-        consoleKeymapping: {
-          type: Array,
-          value: [88,90,16,13,39,37,38,40,50,49]
-        },
+    /**
+    * `consoleKeymapping` set the console key mapping. The order of buttons are:
+    * A, B, Select, Start, Right, Left, Up, Down, R, L
+    */
+    consoleKeymapping: {
+      type: Array,
+      value: [88,90,16,13,39,37,38,40,50,49]
+    },
 
-        /**
-         * `emulatorKeymapping` set the emulator key mapping. The order of functions are:
-         * Volume Down, Volume Up, Speed Up, Slow Down, Reset Speed, Toggle Fullscreen
-         */
-        emulatorKeymapping: {
-          type: Array,
-          value: [56,55,51,52,53,54]
-        },
+    /**
+    * `emulatorKeymapping` set the emulator key mapping. The order of functions are:
+    * Volume Down, Volume Up, Speed Up, Slow Down, Reset Speed, Toggle Fullscreen
+    */
+    emulatorKeymapping: {
+      type: Array,
+      value: [56,55,51,52,53,54]
+    },
 
 
-        // Element callbacks
-        ready: function() {
-          this.IodineGUI = {
-              Iodine:null,
-              Blitter:null,
-              coreTimerID:null,
-              GUITimerID: null,
-              toMap:null,
-              toMapIndice:0,
-              suspended:false,
-              startTime:(+(new Date()).getTime()),
-              mixerInput:null,
-            };
-          this._registerIodineHandler();
-        },
+    // Element callbacks
+    ready: function() {
+      this.IodineGUI = {
+        Iodine:null,
+        Blitter:null,
+        coreTimerID:null,
+        GUITimerID: null,
+        toMap:null,
+        toMapIndice:0,
+        suspended:false,
+        startTime:(+(new Date()).getTime()),
+        mixerInput:null,
+      };
+      this._registerIodineHandler();
+    },
 
-        // Properties observers
-        observers: [
+    // Properties observers
+    observers: [
 
-        ],
+    ],
 
-        // Private Methods
-        _registerIodineHandler: function() {
-          try {
-              /*
-              We utilize SharedArrayBuffer and Atomics API,
-              which browsers prior to 2016 do not support:
-              */
-              if (
-                typeof SharedArrayBuffer != "function"
-                || typeof Atomics != "object"
-               ) {
-                 throw null;
-              } else if (!this.cpuOffThread) {
-                //Try starting Iodine normally, but initialize offthread gfx:
-                IodineGUI.Iodine = new IodineGBAWorkerGfxShim();
-              } else {
-                  //Try starting Iodine in a webworker:
-                  IodineGUI.Iodine = new IodineGBAWorkerShim();
-                  //In order for save on page unload, this needs to be done:
-                  // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
-              }
-          } catch (e) {
-              //Otherwise just run on-thread:
-              IodineGUI.Iodine = new GameBoyAdvanceEmulator();
-          }
+    // Private Methods
+    _registerIodineHandler: function() {
+      try {
+        /*
+        We utilize SharedArrayBuffer and Atomics API,
+        which browsers prior to 2016 do not support:
+        */
+        if (
+          typeof SharedArrayBuffer != "function"
+          || typeof Atomics != "object"
+        ) {
+          throw null;
+        } else if (!this.cpuOffThread) {
+          //Try starting Iodine normally, but initialize offthread gfx:
+          IodineGUI.Iodine = new IodineGBAWorkerGfxShim();
+        } else {
+          //Try starting Iodine in a webworker:
+          IodineGUI.Iodine = new IodineGBAWorkerShim();
+          //In order for save on page unload, this needs to be done:
+          // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
         }
+      } catch (e) {
+        //Otherwise just run on-thread:
+        IodineGUI.Iodine = new GameBoyAdvanceEmulator();
       }
-    });
-  </script>
+    }
+  }
+});
+</script>
 </dom-module>
