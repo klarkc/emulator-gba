@@ -27,6 +27,10 @@ GlxBehavior = {
     }
   },
 
+  observers: [
+    '_processSmoothing(doSmoothing)'
+  ],
+
   _computeRgbCount: function(width, height) {
     return width * height * 3;
   },
