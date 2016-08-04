@@ -81,8 +81,8 @@ GlxBehavior = {
     var parentObj = this;
     this._requestAnimationFrame(function (timestamp) {
       console.trace('done!', timestamp);
-      //parentObj._vsync();
-      //parentObj._rAFKeepAlive();
+      parentObj._vsync();
+      parentObj._rAFKeepAlive();
     });
   },
 

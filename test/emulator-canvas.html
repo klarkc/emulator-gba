@@ -1,0 +1,139 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../../IodineGBA/iodineGBA.html">
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../emulator-canvas.html">
+</head>
+<body>
+
+  <!-- You can use the document as a place to set up your fixtures. -->
+  <test-fixture id="emulator-canvas-fixture">
+    <template>
+      <emulator-canvas width="320" height="240" views-supported></emulator-canvas>
+    </template>
+  </test-fixture>
+
+  <script>
+  suite('emulator-canvas', function() {
+    var myEl;
+    var sandbox;
+
+    setup(function(){
+      myEl = fixture('emulator-canvas-fixture');
+      sandbox = sinon.sandbox.create();
+    });
+
+    teardown(function(){
+      sandbox.restore();
+    })
+
+    test('test defined properties', function() {
+      flush(function(){
+        assert.equal(myEl.width, 320);
+        assert.equal(myEl.height, 240);
+      });
+    });
+
+    suite('GlxBehavior', function() {
+      test('defines the default properties', function() {
+        assert.equal(myEl.doSmoothing, true);
+      });
+
+      test('test defined properties', function() {
+        assert.equal(myEl.rgbCount, myEl._computeRgbCount(320, 240));
+        assert.equal(myEl.rgbaCount, myEl._computeRgbaCount(320, 240));
+      });
+
+      test('test _computeRgbCount', function(){
+        assert.equal(myEl._computeRgbCount(3, 3), 27);
+      });
+
+      test('test _computeRgbaCount', function(){
+        assert.equal(myEl._computeRgbaCount(3, 3), 36);
+      });
+
+      test('test _initializeVsync', function(done){
+        var _vsync = myEl._vsync; // backup
+        myEl._vsync = new Promise(function(resolve){
+          resolve()
+        });
+
+        // When called
+        myEl._vsync.then(function(){
+          // restore default _vsync
+          myEl._vsync = _vsync;
+          done();
+        });
+
+        myEl._initializeVsync();
+      });
+
+      test('test _vsync', function(){
+        var stub = sandbox.stub(myEl, '_requestDraw');
+        myEl._vsync();
+        sinon.assert.calledOnce(stub);
+      });
+
+      test('test _initializeBuffers', function(){
+        var checker;
+        var stub = sandbox.stub(window, 'getUint8Array').returns(checker);
+        myEl._initializeBuffers();
+        assert.deepEqual(myEl._swizzledFrameFree, [checker,checker]);
+        assert.deepEqual(myEl._swizzledFrameReady, []);
+        assert(stub.withArgs(myEl.rgbCount).calledTwice);
+      });
+
+      test('test _rAFKeepAlive', function(){
+        if(!myEl._requestAnimationFrame) myEl._requestAnimationFrame = function(){};
+
+        var requested;
+        var reqStub = sandbox.stub(myEl, '_requestAnimationFrame', function(callback){
+          if(!requested) callback(0);
+        });
+        var vsyncStub = sandbox.stub(myEl, '_vsync', function(){
+          requested = true;
+        });
+
+        myEl._rAFKeepAlive();
+
+        assert.isTrue(requested);
+        sinon.assert.calledOnce(vsyncStub);
+        sinon.assert.calledTwice(reqStub);
+      });
+
+      test('test _initializeCanvas', function(){
+        var spy1 = sandbox.spy(myEl, '_recomputeDimension');
+        var spy2 = sandbox.spy(myEl, '_initializeCanvasBuffer');
+
+        myEl._initializeCanvas();
+
+        sinon.assert.calledOnce(spy1);
+        sinon.assert.calledOnce(spy2);
+        assert.instanceOf(myEl._canvasOffscreen, HTMLCanvasElement);
+        assert.equal(myEl._canvasOffscreen.width, myEl.width);
+        assert.equal(myEl._canvasOffscreen.height, myEl.height);
+        assert.instanceOf(myEl._drawContextOffscreen, CanvasRenderingContext2D);
+        assert.instanceOf(myEl._drawContextOnscreen, CanvasRenderingContext2D);
+      });
+    });
+  });
+  </script>
+
+</body>
+</html>
