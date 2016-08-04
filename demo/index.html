@@ -16,13 +16,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
     <link rel="import" href="../../paper-input/paper-input.html">
     <link rel="import" href="../emulator-gba.html">
+    <style>
+    #emulator emulator-canvas{
+      margin: 0 calc(50% - 120px);
+      background-color: gray;
+    }
+    </style>
   </head>
   <body unresolved>
     <dom-module id="app-demo">
       <template>
+        <emulator-gba id="emulator" bios={{bios}} rom={{rom}}></emulator-gba>
+        <br />
         <paper-input label="Bios URL" value={{bios}}></paper-input>
         <paper-input label="Rom URL" value={{rom}}></paper-input>
-        <emulator-gba id="emulator" bios={{bios}} rom={{rom}}></emulator-gba>
       </template>
       <script>
       Polymer({
