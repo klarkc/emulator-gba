@@ -43,9 +43,17 @@ Example:
       url="{{bios}}"
       handle-as="arraybuffer"
       debounce-duration="1000"
-      on-response="_loadBios">
+      on-response="_loadedBios">
+    </iron-ajax>
+    <iron-ajax
+      auto
+      url="{{rom}}"
+      handle-as="arraybuffer"
+      debounce-duration="1000"
+      on-response="_loadedRom">
     </iron-ajax>
     <emulator-canvas
+      id="canvas"
       width="240"
       height="160"
       views-supported={{_isViewsSupported()}}
@@ -177,6 +185,12 @@ Example:
       this._startTime = (+(new Date()).getTime());
     },
 
+    // Public functions
+    play: function() {
+      this.iodine.play();
+      this._initTimer();
+    },
+
     // Private functions
     _isViewsSupported: function() {
       return __VIEWS_SUPPORTED__;
@@ -208,24 +222,43 @@ Example:
       }
 
       this.iodine.setIntervalRate(16);
-      this.iodine.attachPlayStatusHandler(this._playStatusChanged);
+      this.iodine.attachGraphicsFrameHandler(this.$.canvas);
+      this.iodine.attachPlayStatusHandler(this._playStatusChanged.bind(this));
     },
 
-    _loadBios: function(event) {
+    _loadedBios: function(event) {
+      if(!this.iodine) return;
+
       var req = event.detail;
-      if(req.succeeded && req.response) {
+      if(req.succeeded) {
         try{
           this.iodine.attachBIOS(new Uint8Array(req.response));
         } catch(error) {
           this.iodine.attachBIOS(req.response);
         }
+        console.log('loaded bios');
+        this._autoPlay();
       }
-      this.iodine.play();
-      this._initTimer();
+    },
+
+    _loadedRom: function(event) {
+      if(!this.iodine) return;
+
+      var req = event.detail;
+      if(req.succeeded) {
+        try{
+          this.iodine.attachROM(new Uint8Array(req.response));
+        } catch(error) {
+          this.iodine.attachROM(req.response);
+        }
+        console.log('loaded rom');
+        this._autoPlay();
+      }
     },
 
     _playStatusChanged: function(status) {
       console.log('play status changed to: ', status);
+      if(status > 0) this._initTimer();
     },
 
     _initTimer: function() {
@@ -234,6 +267,10 @@ Example:
         var curTime = ((+(new Date()).getTime()) - (+emulator._startTime)) >>> 0;
         emulator.iodine.timerCallback(curTime);
       }, 16);
+    },
+
+    _autoPlay: function() {
+      this.iodine.play();
     }
   });
   </script>
