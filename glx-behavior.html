@@ -191,7 +191,7 @@ GlxBehavior = {
   _graphicsBlit: function() {
     if (
       this._canvasLastWidth != this.$.canvas.clientWidth
-      || this._canvasLastHeight != this.canvas.clientHeight
+      || this._canvasLastHeight != this.$.canvas.clientHeight
     ) {
       this._recomputeDimension();
       this._processSmoothing();
