@@ -37,7 +37,11 @@ Example:
       box-sizing: border-box;
     }
     </style>
-    <emulator-canvas width="240", height="160"></emulator-canvas>
+    <emulator-canvas
+      width="240"
+      height="160"
+      views-supported={{_isViewsSupported()}}
+    ></emulator-canvas>
   </template>
   <script>
   Polymer({
@@ -161,6 +165,10 @@ Example:
     listeners: {},
 
     // Private functions
+    _isViewsSupported: function() {
+      return __VIEWS_SUPPORTED__;
+    },
+    
     _instanceIodine: function() {
       try {
         /*
