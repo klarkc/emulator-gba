@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../IodineGBA/iodineGBA.html">
 <link rel="import" href="emulator-canvas.html">
 
@@ -37,6 +38,13 @@ Example:
       box-sizing: border-box;
     }
     </style>
+    <iron-ajax
+      auto
+      url="{{bios}}"
+      handle-as="arraybuffer"
+      debounce-duration="1000"
+      on-response="_loadBios">
+    </iron-ajax>
     <emulator-canvas
       width="240"
       height="160"
@@ -164,11 +172,16 @@ Example:
     // Listeners
     listeners: {},
 
+    // Callbacks
+    ready: function() {
+      this._startTime = (+(new Date()).getTime());
+    },
+
     // Private functions
     _isViewsSupported: function() {
       return __VIEWS_SUPPORTED__;
     },
-    
+
     _instanceIodine: function() {
       try {
         /*
@@ -195,6 +208,32 @@ Example:
       }
 
       this.iodine.setIntervalRate(16);
+      this.iodine.attachPlayStatusHandler(this._playStatusChanged);
+    },
+
+    _loadBios: function(event) {
+      var req = event.detail;
+      if(req.succeeded && req.response) {
+        try{
+          this.iodine.attachBIOS(new Uint8Array(req.response));
+        } catch(error) {
+          this.iodine.attachBIOS(req.response);
+        }
+      }
+      this.iodine.play();
+      this._initTimer();
+    },
+
+    _playStatusChanged: function(status) {
+      console.log('play status changed to: ', status);
+    },
+
+    _initTimer: function() {
+      var emulator = this;
+      this._coreTimerID = setInterval(function() {
+        var curTime = ((+(new Date()).getTime()) - (+emulator._startTime)) >>> 0;
+        emulator.iodine.timerCallback(curTime);
+      }, 16);
     }
   });
   </script>

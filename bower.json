@@ -20,7 +20,9 @@
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.2.0",
-    "IodineGBA": "klarkc/IodineGBA"
+    "IodineGBA": "klarkc/IodineGBA",
+    "paper-input": "^1.1.17",
+    "iron-ajax": "^1.4.3"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
