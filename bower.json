@@ -4,7 +4,7 @@
   "authors": [
     "Anonymous <anonymous@example.com>"
   ],
-  "description": "An element providing a solution to no problem in particular.",
+  "description": "A Game Boy Advanced Emulator using web-components.",
   "keywords": [
     "web-component",
     "web-components",
@@ -13,7 +13,7 @@
   ],
   "main": "emulator-gba.html",
   "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/<USERNAME>/seed-element/",
+  "homepage": "https://klarkc.github.io/emulator-gba/",
   "ignore": [
     "/.*",
     "/test/"

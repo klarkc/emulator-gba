@@ -5,8 +5,13 @@
 [travis-image]: https://img.shields.io/travis/klarkc/emulator-gba/master.svg
 [travis-url]: https://travis-ci.org/klarkc/emulator-gba
 
-An element providing a starting point for your own reusable Polymer elements.
+A Game Boy Advanced Emulator using web-components
 
+Example:
+
+    <emulator-gba rom="http://url/to/file.rom" bios="http://url/to/file.bin"></emulator-gba>
+
+Demo and API: https://klarkc.github.io/boxes-distributor/
 
 ## Dependencies
 
