@@ -14,9 +14,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>emulator-gba Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../../paper-input/paper-input.html">
     <link rel="import" href="../emulator-gba.html">
   </head>
   <body unresolved>
-    <emulator-gba></emulator-gba>
+    <dom-module id="app-demo">
+      <template>
+        <paper-input label="Bios URL" value={{bios}}></paper-input>
+        <paper-input label="Rom URL" value={{rom}}></paper-input>
+        <emulator-gba bios={{bios}} rom={{rom}}></emulator-gba>
+      </template>
+      <script>
+      Polymer({
+        is: "app-demo",
+        properties: {
+          bios: {
+            type: String,
+            value: ""
+          },
+          rom: {
+            type: String,
+            value: ""
+          }
+        }
+      });
+      </script>
+    </dom-module>
+
+    <app-demo></app-demo>
   </body>
 </html>
