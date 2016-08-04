@@ -80,6 +80,14 @@ Example:
       save: String,
 
       /**
+      * `auto` when set the emulator auto starts when rom and bios are loaded
+      */
+      auto: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
       * `skipBoot` true to skip boot intro
       */
       skipBoot: {
@@ -270,7 +278,7 @@ Example:
     },
 
     _autoPlay: function() {
-      this.iodine.play();
+      if(this.auto) this.iodine.play();
     }
   });
   </script>
