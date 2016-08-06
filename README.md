@@ -11,7 +11,7 @@ Example:
 
     <emulator-gba rom="http://url/to/file.rom" bios="http://url/to/file.bin"></emulator-gba>
 
-Demo and API: https://klarkc.github.io/boxes-distributor/
+[Demo and API](http://klarkc.praiseweb.com.br/emulator-gba/)
 
 ## Dependencies
 
