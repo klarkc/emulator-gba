@@ -12,6 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../IodineGBA/iodineGBA.html">
 <link rel="import" href="emulator-canvas.html">
+<script src="../jszip/dist/jszip.min.js"></script>
 
 <!--
 A Game Boy Advanced Emulator using web-components
@@ -231,14 +232,18 @@ Example:
     _loadedBios: function(event) {
       if(!this.iodine) return;
 
+      // remember that this detail can be a request or a custom object
+      // coming from _checkUnzip function
       var req = event.detail;
-      if(req.succeeded) {
+      if(!req.succeeded) return;
+
+      if(!this._checkUnzip(req, true)) {
         try{
           this.iodine.attachBIOS(new Uint8Array(req.response));
         } catch(error) {
           this.iodine.attachBIOS(req.response);
         }
-        console.log('loaded bios');
+        console.log('loaded bios', req.response);
         this._autoPlay();
       }
     },
@@ -246,14 +251,18 @@ Example:
     _loadedRom: function(event) {
       if(!this.iodine) return;
 
+      // remember that this detail can be a request or a custom object
+      // coming from _checkUnzip function
       var req = event.detail;
-      if(req.succeeded) {
+      if(!req.succeeded) return;
+
+      if(!this._checkUnzip(req)) {
         try{
           this.iodine.attachROM(new Uint8Array(req.response));
         } catch(error) {
           this.iodine.attachROM(req.response);
         }
-        console.log('loaded rom');
+        console.log('loaded rom', req.response);
         this._autoPlay();
       }
     },
@@ -273,6 +282,41 @@ Example:
 
     _autoPlay: function() {
       if(this.auto) this.iodine.play();
+    },
+
+    _checkUnzip: function(req, bios) {
+      if(!bios) bios = false;
+      if(!req.xhr) return false;
+
+      var type = req.xhr.getResponseHeader('content-type');
+      if(type !== 'application/zip') return false;
+
+      // Handle zip
+      var component = this;
+      JSZip.loadAsync(req.response).then(function(zip) {
+        zip.filter(function(relativePath){
+          if(bios) {
+            return relativePath.indexOf('.bin') > -1;
+          }
+          return relativePath.indexOf('.gba') > -1;
+        }).forEach(function(file){
+          file.async("arraybuffer").then(function(data){
+            var event = new CustomEvent('response', {
+              'detail': {
+                'response': data,
+                'succeeded': req.succeeded
+              }
+            });
+            console.log('unzipped and loading', file.name, data);
+            if (bios) {
+              component._loadedBios(event);
+            } else {
+              component._loadedRom(event);
+            }
+          });
+        })
+      });
+      return true;
     }
   });
   </script>
