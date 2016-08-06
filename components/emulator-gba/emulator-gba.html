@@ -1,0 +1,323 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../IodineGBA/iodineGBA.html">
+<link rel="import" href="emulator-canvas.html">
+<script src="../jszip/dist/jszip.min.js"></script>
+
+<!--
+A Game Boy Advanced Emulator using web-components
+
+Example:
+
+    <emulator-gba rom="http://url/to/file.rom" bios="http://url/to/file.bin"></emulator-gba>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="emulator-gba">
+  <template>
+    <style>
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+    </style>
+    <iron-ajax
+      auto
+      url="{{bios}}"
+      handle-as="arraybuffer"
+      debounce-duration="1000"
+      on-response="_loadedBios">
+    </iron-ajax>
+    <iron-ajax
+      auto
+      url="{{rom}}"
+      handle-as="arraybuffer"
+      debounce-duration="1000"
+      on-response="_loadedRom">
+    </iron-ajax>
+    <emulator-canvas
+      id="canvas"
+      width="240"
+      height="160"
+      views-supported={{_isViewsSupported()}}
+    ></emulator-canvas>
+  </template>
+  <script>
+  Polymer({
+    is: 'emulator-gba',
+
+    properties: {
+      /**
+      * `bios` optional url to download bios file.
+      */
+      bios: String,
+
+      /**
+      * `rom` optional url to download rom file.
+      */
+      rom: String,
+
+      /**
+      * `save` optional url to download save file.
+      */
+      save: String,
+
+      /**
+      * `auto` when set the emulator auto starts when rom and bios are loaded
+      */
+      auto: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `skipBoot` true to skip boot intro
+      */
+      skipBoot: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+      * `smoothScaling` false to disable smooth scaling
+      */
+      smoothScaling: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `dynamicSpeed` true to enable dynamic speed
+      */
+      dynamicSpeed: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+      * `speed` manual speed of the emulation in %
+      */
+      speed: {
+        type: Number,
+        value: 100
+      },
+
+      /**
+      * `cpuOffThread` false to disable CPU off-thread
+      */
+      cpuOffThread: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `gpuOffThread` false to disable GPU off-thread
+      */
+      gpuOffThread: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `sound` false to disable sound
+      */
+      sound: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+      * `volume` adjust the volume or listen for volume changes (in %)
+      */
+      volume: {
+        type: Number,
+        value: 50,
+        notify: true
+      },
+
+      /**
+      * `consoleKeymapping` set the console key mapping. The order of buttons are:
+      * A, B, Select, Start, Right, Left, Up, Down, R, L
+      */
+      consoleKeymapping: {
+        type: Array,
+        value: [88,90,16,13,39,37,38,40,50,49]
+      },
+
+      /**
+      * `emulatorKeymapping` set the emulator key mapping. The order of functions are:
+      * Volume Down, Volume Up, Speed Up, Slow Down, Reset Speed, Toggle Fullscreen
+      */
+      emulatorKeymapping: {
+        type: Array,
+        value: [56,55,51,52,53,54]
+      },
+
+      /**
+      * `iodine` the emulator instance, for advanced purposes
+      */
+      iodine: {
+        type: Object,
+        readOnly: true,
+        value: null
+      }
+    },
+
+    // Properties observers
+    observers: [
+      '_instanceIodine(cpuOffThread)'
+    ],
+
+    // Listeners
+    listeners: {},
+
+    // Callbacks
+    ready: function() {
+      this._startTime = (+(new Date()).getTime());
+    },
+
+    // Public functions
+    play: function() {
+      this.iodine.play();
+      this._initTimer();
+    },
+
+    // Private functions
+    _isViewsSupported: function() {
+      return __VIEWS_SUPPORTED__;
+    },
+
+    _instanceIodine: function() {
+      try {
+        /*
+        We utilize SharedArrayBuffer and Atomics API,
+        which browsers prior to 2016 do not support:
+        */
+        if (
+          typeof SharedArrayBuffer != "function"
+          || typeof Atomics != "object"
+        ) {
+          throw null;
+        } else if (!this.cpuOffThread) {
+          //Try starting Iodine normally, but initialize offthread gfx:
+          this._setIodine(new IodineGBAWorkerGfxShim());
+        } else {
+          //Try starting Iodine in a webworker:
+          this._setIodine(new IodineGBAWorkerShim());
+          //In order for save on page unload, this needs to be done:
+          // TODO: this.listen("beforeunload", _registerBeforeUnloadHandler);
+        }
+      } catch (e) {
+        //Otherwise just run on-thread:
+        this._setIodine(new GameBoyAdvanceEmulator());
+      }
+
+      this.iodine.setIntervalRate(16);
+      this.iodine.attachGraphicsFrameHandler(this.$.canvas);
+      this.iodine.attachPlayStatusHandler(this._playStatusChanged.bind(this));
+    },
+
+    _loadedBios: function(event) {
+      if(!this.iodine) return;
+
+      // remember that this detail can be a request or a custom object
+      // coming from _checkUnzip function
+      var req = event.detail;
+      if(!req.succeeded) return;
+
+      if(!this._checkUnzip(req, true)) {
+        try{
+          this.iodine.attachBIOS(new Uint8Array(req.response));
+        } catch(error) {
+          this.iodine.attachBIOS(req.response);
+        }
+        console.log('loaded bios', req.response);
+        this._autoPlay();
+      }
+    },
+
+    _loadedRom: function(event) {
+      if(!this.iodine) return;
+
+      // remember that this detail can be a request or a custom object
+      // coming from _checkUnzip function
+      var req = event.detail;
+      if(!req.succeeded) return;
+
+      if(!this._checkUnzip(req)) {
+        try{
+          this.iodine.attachROM(new Uint8Array(req.response));
+        } catch(error) {
+          this.iodine.attachROM(req.response);
+        }
+        console.log('loaded rom', req.response);
+        this._autoPlay();
+      }
+    },
+
+    _playStatusChanged: function(status) {
+      console.log('play status changed to: ', status);
+      if(status > 0) this._initTimer();
+    },
+
+    _initTimer: function() {
+      var emulator = this;
+      this._coreTimerID = setInterval(function() {
+        var curTime = ((+(new Date()).getTime()) - (+emulator._startTime)) >>> 0;
+        emulator.iodine.timerCallback(curTime);
+      }, 16);
+    },
+
+    _autoPlay: function() {
+      if(this.auto) this.iodine.play();
+    },
+
+    _checkUnzip: function(req, bios) {
+      if(!bios) bios = false;
+      if(!req.xhr) return false;
+
+      var type = req.xhr.getResponseHeader('content-type');
+      if(type !== 'application/zip') return false;
+
+      // Handle zip
+      var component = this;
+      JSZip.loadAsync(req.response).then(function(zip) {
+        zip.filter(function(relativePath){
+          if(bios) {
+            return relativePath.indexOf('.bin') > -1;
+          }
+          return relativePath.indexOf('.gba') > -1;
+        }).forEach(function(file){
+          file.async("arraybuffer").then(function(data){
+            var event = new CustomEvent('response', {
+              'detail': {
+                'response': data,
+                'succeeded': req.succeeded
+              }
+            });
+            console.log('unzipped and loading', file.name, data);
+            if (bios) {
+              component._loadedBios(event);
+            } else {
+              component._loadedRom(event);
+            }
+          });
+        })
+      });
+      return true;
+    }
+  });
+  </script>
+</dom-module>

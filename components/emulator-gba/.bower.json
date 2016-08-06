@@ -1,0 +1,41 @@
+{
+  "name": "emulator-gba",
+  "authors": [
+    "Anonymous <anonymous@example.com>"
+  ],
+  "description": "A Game Boy Advanced Emulator using web-components.",
+  "keywords": [
+    "web-component",
+    "web-components",
+    "polymer",
+    "seed"
+  ],
+  "main": "emulator-gba.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://klarkc.github.io/emulator-gba/",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.2.0",
+    "IodineGBA": "klarkc/IodineGBA",
+    "paper-input": "^1.1.17",
+    "iron-ajax": "^1.4.3",
+    "jszip": "^3.1.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "^4.0.0"
+  },
+  "_release": "cd680b221a",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "cd680b221aebb38a2327872f87b3a1f6c7f42953"
+  },
+  "_source": "git@github.com:klarkc/emulator-gba.git",
+  "_target": "master",
+  "_originalSource": "git@github.com:klarkc/emulator-gba",
+  "_direct": true
+}

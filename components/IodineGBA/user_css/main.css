@@ -1,0 +1,128 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+div#container {
+    width: 100%;
+    height: 100%;
+}
+div#main {
+    position:absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: rgb(0, 0, 0);
+}
+div#main canvas {
+    margin: auto;
+    display: block;
+    padding: 0px;
+    background-color: rgb(248, 248, 248);
+}
+canvas {
+    cursor: none;
+}
+canvas.textureSmooth {
+    image-rendering: auto;
+    image-rendering: optimizeQuality;
+    -ms-interpolation-mode: bicubic;
+}
+canvas.texturePixelated {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+span#tempMessage {
+    color: red;
+    bottom: 0px;
+    position: absolute;
+    right: 0px;
+    display: none;
+    font-size: 40pt;
+    font-weight: bold;
+    text-align: right;
+    vertical-align: bottom;
+    font-family: monospace;
+}
+div#menu {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 0px;
+}
+div#menu ul {
+	list-style:none;
+	position:relative;
+	float:left;
+	margin:0;
+	padding:0;
+    width: 100%;
+    background-color: rgb(255, 255, 255);
+    z-index: 2;
+}
+div#menu ul span, div#menu ul a {
+	color: rgb(50, 50, 50);
+	text-decoration: none;
+	font-weight: 700;
+	font-size: 12px;
+	line-height: 32px;
+	padding: 0 15px;
+	font-family:"HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+div#menu ul ul a, div#menu ul ul span {
+	line-height: 120%;
+	padding: 10px 15px;
+}
+div#menu ul li {
+	position: relative;
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+div#menu ul li:hover {
+	background-color: rgb(240, 240, 240) !important;
+}
+div#menu ul li:hover > ul {
+	display: block;
+}
+li.hide {
+    display: none !important;
+}
+div#menu ul ul {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	background: rbg(255, 255, 255);
+	padding: 0;
+}
+div#menu ul ul li {
+	float: none;
+    display: table-row;
+    z-index: 3;
+    background-color: rgb(255, 255, 255);
+}
+div#menu ul ul ul {
+	top: 0;
+	left: 100%;
+}
+input {
+    max-width: 150px;
+}
+div#menu.paused > ul, div#menu.playing > ul:hover {
+    opacity: 1;
+}
+div#menu.playing > ul {
+    opacity: 0;
+}
+div#menu input+span {
+    padding-left: 30px;
+}
+.nowrap {
+    white-space: nowrap;
+}

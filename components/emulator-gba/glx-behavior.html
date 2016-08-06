@@ -1,0 +1,232 @@
+<script>
+GlxBehavior = {
+  properties: {
+    /**
+    * `doSmoothing` texture filter the framebuffer?
+    */
+    doSmoothing: {
+      type: Boolean,
+      value: true
+    },
+
+    /**
+    * `viewsSupported` is views supported?
+    */
+    viewsSupported: Boolean,
+
+    rgbCount: {
+      type: Number,
+      readOnly: true,
+      computed: '_computeRgbCount(width, height)'
+    },
+
+    rgbaCount: {
+      type: Number,
+      readOnly: true,
+      computed: '_computeRgbaCount(width, height)'
+    }
+  },
+
+  observers: [
+    '_processSmoothing(doSmoothing)'
+  ],
+
+  _computeRgbCount: function(width, height) {
+    return width * height * 3;
+  },
+
+  _computeRgbaCount: function(width, height) {
+    return width * height * 4;
+  },
+
+  _initializeVsync: function() {
+    // requestAnimationFrame not working for some reason
+    /*this._requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;*/
+    var parentObj = this;
+    if (!this._requestAnimationFrame) {
+      //Fallback timer eventing:
+      setInterval(function () {
+        parentObj._vsync();
+      }, 16);
+    } else {
+      this._requestAnimationFrame.bind(window);
+      //Initialize the rAF eventing:
+      this._requestAnimationFrame(function (time) {
+        console.log('frame', time);
+        parentObj._vsync();
+        parentObj._rAFKeepAlive();
+      });
+    }
+  },
+
+  _initializeBuffers: function() {
+    this._swizzledFrameFree = [
+      getUint8Array(this.rgbCount),
+      getUint8Array(this.rgbCount)
+    ];
+    this._swizzledFrameReady = [];
+  },
+
+  _vsync: function() {
+    //console.log('vsync');
+    /*
+    if (typeof this.gfxCallback == "function") {
+      //Let the user supplied code prepare a frame or two:
+      this.gfxCallback();
+    }
+    */
+    //Draw a frame, if ready:
+    this._requestDraw();
+  },
+
+  _rAFKeepAlive: function() {
+    //Keep the vsync event requested:
+    var parentObj = this;
+    this._requestAnimationFrame(function (timestamp) {
+      console.trace('done!', timestamp);
+      parentObj._vsync();
+      parentObj._rAFKeepAlive();
+    });
+  },
+
+  _initializeCanvas: function() {
+    //Obtain dimensional information:
+    this._recomputeDimension();
+    //Get handles on the canvases:
+    this._canvasOffscreen = document.createElement("canvas");
+    this._canvasOffscreen.width = this.width;
+    this._canvasOffscreen.height = this.height;
+    this._drawContextOffscreen = this._canvasOffscreen.getContext("2d");
+    this._drawContextOnscreen = this.$.canvas.getContext("2d");
+    //Initialize the canvas backing buffer:
+    this._initializeCanvasBuffer();
+  },
+
+  _recomputeDimension: function() {
+    console.log('recomputing dimension');
+    this._canvasLastWidth = this.$.canvas.clientWidth;
+    this._canvasLastHeight = this.$.canvas.clientHeight;
+    if ((
+      navigator.userAgent.toLowerCase().indexOf("gecko") != -1
+      && navigator.userAgent.toLowerCase().indexOf("like gecko") == -1
+    )) {    //Sniff out firefox for selecting this path.
+      //Set target as unscaled:
+      this._onscreenWidth = this.width;
+      this._onscreenHeight = this.height;
+    } else {
+      //Set target canvas as scaled:
+      this._onscreenWidth = this.width = this.$.canvas.clientWidth;
+      this._onscreenHeight = this.height = this.$.canvas.clientHeight;
+    }
+  },
+
+  _initializeCanvasBuffer: function() {
+    //Get a CanvasPixelArray buffer:
+    this._canvasBuffer = this.getBuffer(
+      this._drawContextOffscreen,
+      this.width,
+      this.height
+    );
+    //Initialize Alpha Channel:
+    this._initializeAlpha(this._canvasBuffer.data);
+  },
+
+  getBuffer: function (canvasContext, width, height) {
+    //Get a CanvasPixelArray buffer:
+    var buffer = null;
+    try {
+      buffer = this._drawContextOffscreen.createImageData(width, height);
+    } catch (error) {
+      buffer = this._drawContextOffscreen.getImageData(0, 0, width, height);
+    }
+    return buffer;
+  },
+
+  copyBuffer: function (buffer) {
+    if(this.viewsSupported) {
+      if (this._swizzledFrameFree.length == 0) {
+        this._swizzledFrameFree.push(this._swizzledFrameReady.shift());
+      }
+      var swizzledFrame = this._swizzledFrameFree.shift();
+      swizzledFrame.set(buffer);
+      this._swizzledFrameReady.push(swizzledFrame);
+    } else {
+      if (this.swizzledFrameFree.length == 0) {
+          this.swizzledFrameFree.push(this.swizzledFrameReady.shift());
+      }
+      var swizzledFrame = this.swizzledFrameFree.shift();
+      for (var bufferIndex = 0; bufferIndex < this.offscreenRGBCount; bufferIndex++) {
+          swizzledFrame[bufferIndex] = buffer[bufferIndex];
+      }
+      this.swizzledFrameReady.push(swizzledFrame);
+    }
+  },
+
+  _initializeAlpha:function (canvasData) {
+    var length = canvasData.length;
+    for (
+      var indexGFXIterate = 3;
+      indexGFXIterate < length;
+      indexGFXIterate += 4
+    ) {
+      canvasData[indexGFXIterate] = 0xFF;
+    }
+  },
+
+  _requestDraw: function() {
+    if (this._swizzledFrameReady.length > 0) {
+      var canvasData = this._canvasBuffer.data;
+      var swizzledFrame = this._swizzledFrameReady.shift();
+      for (
+        var canvasIndex = 0, bufferIndex = 0;
+        canvasIndex < this.rgbaCount;
+        ++canvasIndex
+      ) {
+        canvasData[canvasIndex++] = swizzledFrame[bufferIndex++];
+        canvasData[canvasIndex++] = swizzledFrame[bufferIndex++];
+        canvasData[canvasIndex++] = swizzledFrame[bufferIndex++];
+      }
+      this._swizzledFrameFree.push(swizzledFrame);
+      this._graphicsBlit();
+    }
+  },
+
+  _graphicsBlit: function() {
+    if (
+      this._canvasLastWidth != this.$.canvas.clientWidth
+      || this._canvasLastHeight != this.$.canvas.clientHeight
+    ) {
+      this._recomputeDimension();
+      this._processSmoothing();
+    }
+    if (
+      this.width == this._onscreenWidth
+      && this.height == this._onscreenHeight
+    ) {
+      //Canvas does not need to scale, draw directly to final:
+      this._drawContextOnscreen.putImageData(this._canvasBuffer, 0, 0);
+    } else {
+      //Canvas needs to scale, draw to offscreen first:
+      this._drawContextOffscreen.putImageData(this._canvasBuffer, 0, 0);
+      //Scale offscreen canvas image onto the final:
+      this._drawContextOnscreen.drawImage(
+        this._canvasOffscreen,
+        0,
+        0,
+        this.onscreenWidth,
+        this.onscreenHeight
+      );
+    }
+  },
+
+  _processSmoothing: function() {
+    this.$.canvas.className = (this.doSmoothing) ? "textureSmooth" : "texturePixelated";
+    if(!this._drawContextOnscreen) return;
+
+    this._drawContextOnscreen.mozImageSmoothingEnabled = this.doSmoothing;
+    this._drawContextOnscreen.webkitImageSmoothingEnabled = this.doSmoothing;
+    this._drawContextOnscreen.imageSmoothingEnabled = this.doSmoothing;
+  }
+}
+</script>

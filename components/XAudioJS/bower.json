@@ -1,0 +1,17 @@
+{
+  "name": "XAudioJS",
+  "homepage": "https://github.com/klarkc/XAudioJS",
+  "authors": [
+    "klarkc <walker@praiseweb.com.br>"
+  ],
+  "description": "Shim repository for taisel/XAudioJS",
+  "main": "XAudioJS.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

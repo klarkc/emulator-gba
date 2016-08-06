@@ -1,0 +1,20 @@
+{
+  "name": "IodineGBA",
+  "homepage": "https://github.com/klarkc/IodineGBA",
+  "authors": [
+    "klarkc <walker@praiseweb.com.br>"
+  ],
+  "description": "Shim repository for taisel/IodineGBA repository",
+  "main": "iodineGBA.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "XAudioJS": "klarkc/XAudioJS"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "XAudioJS",
+  "homepage": "https://github.com/klarkc/XAudioJS",
+  "authors": [
+    "klarkc <walker@praiseweb.com.br>"
+  ],
+  "description": "Shim repository for taisel/XAudioJS",
+  "main": "XAudioJS.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "7db05aa222",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "7db05aa222b325e9dc45a34f211fd8c6c3ddf30a"
+  },
+  "_source": "git://github.com/klarkc/XAudioJS.git",
+  "_target": "*",
+  "_originalSource": "klarkc/XAudioJS"
+}
