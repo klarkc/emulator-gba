@@ -131,6 +131,98 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.instanceOf(myEl._drawContextOffscreen, CanvasRenderingContext2D);
         assert.instanceOf(myEl._drawContextOnscreen, CanvasRenderingContext2D);
       });
+
+      test('test _recomputeDimension', function(){
+        flush(function(){
+          myEl._recomputeDimension();
+          assert.equal(myEl._canvasLastWidth, myEl.$.canvas.clientWidth);
+          assert.equal(myEl._canvasLastHeight, myEl.$.canvas.clientHeight);
+          if(
+            navigator.userAgent.toLowerCase().indexOf("gecko") != -1
+            && navigator.userAgent.toLowerCase().indexOf("like gecko") == -1
+          ) {
+            assert.equal(myEl._onscreenWidth, myEl.width);
+            assert.equal(myEl._onscreenHeight, myEl.height);
+          } else {
+            assert.equal(myEl._onscreenWidth, myEl.width);
+            assert.equal(myEl._onscreenWidth, myEl.$.canvas.clientWidth);
+            assert.equal(myEl._onscreenHeight, myEl.height);
+            assert.equal(myEl._onscreenHeight, myEl.$.canvas.clientHeight);
+          }
+        });
+      });
+
+      test('test _initializeCanvasBuffer', function(){
+        var _canvasBuffer = {data: true};
+        myEl._drawContextOffscreen = {};
+        var stub1 = sandbox.stub(myEl, 'getBuffer').returns(_canvasBuffer);
+        var stub2 = sandbox.spy(myEl, '_initializeAlpha');
+
+        myEl._initializeCanvasBuffer();
+
+        sinon.assert.calledOnce(stub1);
+        sinon.assert.calledWith(stub1,
+          myEl._drawContextOffscreen,
+          myEl.width,
+          myEl.height
+        );
+        assert.equal(myEl._canvasBuffer, _canvasBuffer);
+
+        sinon.assert.calledOnce(stub2);
+        sinon.assert.calledWith(stub2, myEl._canvasBuffer.data);
+      });
+
+      test('test getBuffer', function(){
+        var buffer = {};
+        var stub1 = sandbox.stub(myEl._drawContextOffscreen, 'createImageData').returns(buffer);
+        var stub2 = sandbox.stub(myEl._drawContextOffscreen, 'getImageData').returns(buffer);
+        var width = {};
+        var height = {};
+
+        assert.equal(myEl.getBuffer(null, width, height), buffer);
+        sinon.assert.calledOnce(stub1);
+        sinon.assert.calledWith(stub1, width, height);
+
+        // Error checker
+        stub1.throws();
+        assert.equal(myEl.getBuffer(null, width, height), buffer);
+        sinon.assert.calledOnce(stub2);
+        sinon.assert.calledWith(stub2, 0, 0, width, height);
+      });
+
+      test('test copyBuffer, with viewsSupported && _swizzledFrameFree.length == 0', function(){
+        var buffer = [1, 2, 3, 4, 5, 6];
+        var uint1 = getUint8Array(6);
+        var uint2 = getUint8Array(8);
+        myEl._swizzledFrameReady = [uint1, uint2];
+
+        // viewsSupported && _swizzledFrameFree.length == 0
+        myEl.viewsSupported = true;
+        myEl._swizzledFrameFree = [];
+        myEl.copyBuffer(buffer);
+
+        assert.equal(myEl._swizzledFrameFree.length, 0);
+        assert.equal(uint1.toString(), '1,2,3,4,5,6');
+        assert.equal(myEl._swizzledFrameReady[0], uint2);
+        assert.equal(myEl._swizzledFrameReady[1], uint1);
+      });
+
+      test('test copyBuffer, with viewsSupported && _swizzledFrameFree.length != 0', function(){
+        var buffer = [1, 2, 3, 4, 5, 6];
+        var uint1 = getUint8Array(6);
+        var uint2 = getUint8Array(8);
+        myEl._swizzledFrameReady = [uint2];
+
+        // viewsSupported && _swizzledFrameFree.length == 0
+        myEl.viewsSupported = true;
+        myEl._swizzledFrameFree = [uint1];
+        myEl.copyBuffer(buffer);
+
+        assert.equal(myEl._swizzledFrameFree.length, 0);
+        assert.equal(uint1.toString(), '1,2,3,4,5,6');
+        assert.equal(myEl._swizzledFrameReady[0], uint2);
+        assert.equal(myEl._swizzledFrameReady[1], uint1);
+      });
     });
   });
   </script>
