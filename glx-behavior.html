@@ -53,7 +53,7 @@ GlxBehavior = {
       this._requestAnimationFrame.bind(window);
       //Initialize the rAF eventing:
       this._requestAnimationFrame(function (time) {
-        console.log('frame', time);
+        //console.log('frame', time);
         parentObj._vsync();
         parentObj._rAFKeepAlive();
       });
@@ -104,7 +104,7 @@ GlxBehavior = {
   },
 
   _recomputeDimension: function() {
-    console.log('recomputing dimension');
+    //console.log('recomputing dimension');
     this._canvasLastWidth = this.$.canvas.clientWidth;
     this._canvasLastHeight = this.$.canvas.clientHeight;
     if ((
